@@ -32,9 +32,9 @@ val mod_power_CRT : t -> t -> t -> t -> t -> t -> t
 val mod_inv : t -> t -> t
 
 val of_bytes : string -> t
-val to_bytes : ?numbits:int -> t -> bytes
+val to_bytes : ?numbits:int -> t -> string
 
-val random : rng:(bytes -> int -> int -> unit) -> ?lowbits:int -> int -> t
+val random : rng:(bytes -> int -> int -> unit) -> ?odd:bool -> int -> t
 val random_prime : rng:(bytes -> int -> int -> unit) -> int -> t
 
 val wipe : t -> unit

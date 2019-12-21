@@ -1433,7 +1433,7 @@ end
 
 (* RSA operations *)
 
-module Bn = CryptokitBignum
+module Bn = CryptokitBignumOld
 
 module RSA = struct
 

@@ -37,7 +37,7 @@ Flag hardwaresupport
 
 Library cryptokit
   Path:    src
-  Modules: CryptokitBignum, Cryptokit
+  Modules: CryptokitBignumOld, Cryptokit
   CSources: aesni.c,
             aesni.h,
             arcfour.c,
@@ -74,7 +74,7 @@ Library cryptokit
             chacha20.h,
             chacha20.c,
             stubs-chacha20.c
-  BuildDepends: unix, zarith
+  BuildDepends: unix, num
   if flag(zlib)
     CCOpt: -DHAVE_ZLIB
     if system(win32) || system(win64)

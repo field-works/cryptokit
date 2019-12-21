@@ -220,14 +220,15 @@ let mod_inv b c =
 let bytes_per_digit = length_of_digit / 8
 
 let of_bytes s =
-  let l = String.length s in
+  let s = Bytes.of_string s in
+  let l = Bytes.length s in
   if l = 0 then make_nat 1 else begin
     let n = make_nat ((l + bytes_per_digit - 1) / bytes_per_digit) in
     let tmp = create_nat 2 in
     for i = 0 to l - 1 do
       let pos = i / bytes_per_digit
       and shift = (i mod bytes_per_digit) * 8 in
-      set_digit_nat tmp 0 (Char.code s.[l-1-i]);
+      set_digit_nat tmp 0 (Char.code (Bytes.get s (l-1-i)));
       shift_left_nat tmp 0 1 tmp 1 shift;
       lor_digit_nat n pos tmp 0
     done;
@@ -242,34 +243,37 @@ let to_bytes ?numbits n =
   | Some n -> assert (nbits <= n)
   end;
   let l = ((nbits + 7) / 8) in
-  let s = String.create ((nbits + 7) / 8) in
+  let s = Bytes.create ((nbits + 7) / 8) in
   let tmp = create_nat 2 in
   for i = 0 to l - 1 do
     let pos = i / bytes_per_digit
     and shift = (i mod bytes_per_digit) * 8 in
     blit_nat tmp 0 n pos 1;
     shift_right_nat tmp 0 1 tmp 1 shift;
-    s.[l-1-i] <- Char.unsafe_chr(nth_digit_nat tmp 0)
+    Bytes.set s ( l-1-i ) (Char.unsafe_chr (nth_digit_nat tmp 0))
   done;
   wipe tmp;
-  match numbits with
-    None -> s
-  | Some n ->
-      let l' = ((n + 7) / 8) in
-      if l = l' then s else String.make (l' - l) '\000' ^ s
+  let b =
+    match numbits with
+      None -> s
+    | Some n ->
+        let l' = ((n + 7) / 8) in
+        if l = l' then s else Bytes.cat (Bytes.make (l' - l) '\000') s
+  in
+  Bytes.to_string b
 
-let wipe_string s = String.fill s 0 (String.length s) '\000'
+let wipe_string s = Bytes.fill s 0 (Bytes.length s) '\000'
 
 let random ~rng ?(odd = false) numbits =
   let numdigits = ((numbits + length_of_digit - 1) / length_of_digit) in
-  let buf = String.create (numdigits * length_of_digit / 8) in
-  rng buf 0 (String.length buf);
+  let buf = Bytes.create (numdigits * length_of_digit / 8) in
+  rng buf 0 (Bytes.length buf);
   (* move them to a nat *)
-  let n = of_bytes buf in
+  let n = of_bytes (Bytes.unsafe_to_string buf) in
   wipe_string buf;
   let tmp = create_nat 2 in
   (* adjust low digit of n if requested *)
-  if odd then
+  if odd then begin
     set_digit_nat tmp 0 1;
     lor_digit_nat n 0 tmp 0
   end;
