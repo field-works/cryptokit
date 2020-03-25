@@ -1360,7 +1360,7 @@ let secure_rng =
     new system_rng
   with Not_found ->
   try
-    new device_rng "/dev/random"
+    new device_rng "/dev/urandom"
   with Unix.Unix_error(_,_,_) ->
   try
     new egd_rng (Sys.getenv "EGD_SOCKET")
